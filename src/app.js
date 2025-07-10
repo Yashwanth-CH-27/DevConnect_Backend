@@ -5,13 +5,19 @@ const User = require("./models/user");
 
 app.post("/signUp", async (req,res) => {
     const user = new User({
-        firstName: "Chundru",
-        lastName: "Yaswanth Sai Kiran",
-        emailId: "yash@gmail.com",
-        password: "yash@123",
+        firstName: "Ch",
+        lastName: "Nikhil",
+        emailId: "Nikki@gmail.com",
+        password: "Nikki@123",
     })
-    await user.save();
-    res.send("New User Data added Successfully!!")
+    try{
+        await user.save();
+        res.send("New User Data added Successfully!!")
+    }
+    catch(err){
+        res.status(404).send("Data has not been added to DB!!!")
+    }
+
 })
 
 connectDB()
