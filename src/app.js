@@ -17,6 +17,40 @@ app.post("/signUp", async (req,res) => {
 
 })
 
+//when you want to find one doc by using emailId use .find, but from duplicates use .findOne
+
+app.get("/user", async (req,res) => {
+      const userEmail = req.body.emailId;
+      try{
+        console.log(userEmail)
+          const users = await User.findOne({emailId: userEmail})
+          if(!users){
+            res.send("User Not found")
+          }else{
+            res.send(users)
+          }
+      }
+      catch(err){
+        res.status(404).send("Something went wrong")
+      }
+})
+
+// to get all the data or all the docs from DB
+
+app.get("/feed", async (req,res) => {
+      try{
+          const users = await User.find({})
+          if(!users){
+            res.send("User Not found")
+          }else{
+            res.send(users)
+          }
+      }
+      catch(err){
+        res.status(404).send("Something went wrong")
+      }
+})
+
 connectDB()
   .then(() => {
     console.log("DB connected Successfully");
