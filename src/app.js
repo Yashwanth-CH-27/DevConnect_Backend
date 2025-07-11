@@ -5,6 +5,8 @@ const User = require("./models/user");
 
 app.use(express.json())
 
+// saving data to DB by using .save()
+
 app.post("/signUp", async (req,res) => {
     const user = new User(req.body)
     try{
@@ -49,6 +51,19 @@ app.get("/feed", async (req,res) => {
       catch(err){
         res.status(404).send("Something went wrong")
       }
+})
+
+//to Delete data from Db
+
+app.delete("/user", async (req,res) => {
+  const userId = req.body.userId;
+  try{
+    const removedId = await User.findByIdAndDelete(userId)
+    res.send(removedId)
+  }
+  catch(err){
+    res.status(404).send("Something went wrong")
+  }
 })
 
 connectDB()
