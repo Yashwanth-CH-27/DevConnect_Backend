@@ -14,7 +14,7 @@ app.post("/signUp", async (req,res) => {
         res.send("New User Data added Successfully!!")
     }
     catch(err){
-        res.status(404).send("Data has not been added to DB!!!")
+        res.status(404).send("There was an Error:" + err.message)
     }
 
 })
@@ -72,11 +72,11 @@ app.patch("/user", async (req,res) => {
   const userId = req.body.userId;
   const data = req.body;
   try{
-    const updatedUser = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument : 'after'});
+    const updatedUser = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument : 'after', runValidators : true});
     res.send(updatedUser)
   }
   catch(err){
-    res.status(404).send("Something Went wrong!!")
+    res.status(404).send("There was an Error:" + err.message)
   }
 })
 
