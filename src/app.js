@@ -3,82 +3,96 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 
-app.use(express.json())
+app.use(express.json());
 
 // saving data to DB by using .save()
 
-app.post("/signUp", async (req,res) => {
-    const user = new User(req.body)
-    try{
-        await user.save();
-        res.send("New User Data added Successfully!!")
-    }
-    catch(err){
-        res.status(404).send("There was an Error:" + err.message)
-    }
-
-})
+app.post("/signUp", async (req, res) => {
+  const user = new User(req.body);
+  try {
+    await user.save();
+    res.send("New User Data added Successfully!!");
+  } catch (err) {
+    res.status(404).send("There was an Error:" + err.message);
+  }
+});
 
 //when you want to find one doc by using emailId use .find, but from duplicates use .findOne
 
-app.get("/user", async (req,res) => {
-      const userEmail = req.body.emailId;
-      try{
-        console.log(userEmail)
-          const users = await User.findOne({emailId: userEmail})
-          if(!users){
-            res.send("User Not found")
-          }else{
-            res.send(users)
-          }
-      }
-      catch(err){
-        res.status(404).send("Something went wrong")
-      }
-})
+app.get("/user", async (req, res) => {
+  const userEmail = req.body.emailId;
+  try {
+    console.log(userEmail);
+    const users = await User.findOne({ emailId: userEmail });
+    if (!users) {
+      res.send("User Not found");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(404).send("Something went wrong");
+  }
+});
 
 // to get all the data or all the docs from DB
 
-app.get("/feed", async (req,res) => {
-      try{
-          const users = await User.find({})
-          if(!users){
-            res.send("User Not found")
-          }else{
-            res.send(users)
-          }
-      }
-      catch(err){
-        res.status(404).send("Something went wrong")
-      }
-})
+app.get("/feed", async (req, res) => {
+  try {
+    const users = await User.find({});
+    if (!users) {
+      res.send("User Not found");
+    } else {
+      res.send(users);
+    }
+  } catch (err) {
+    res.status(404).send("Something went wrong");
+  }
+});
 
 //to Delete data from Db
 
-app.delete("/user", async (req,res) => {
+app.delete("/user", async (req, res) => {
   const userId = req.body.userId;
-  try{
-    const removedId = await User.findByIdAndDelete(userId)
-    res.send(removedId)
+  try {
+    const removedId = await User.findByIdAndDelete(userId);
+    res.send(removedId);
+  } catch (err) {
+    res.status(404).send("Something went wrong");
   }
-  catch(err){
-    res.status(404).send("Something went wrong")
-  }
-})
+});
 
 //Update the data in the DB
 
-app.patch("/user", async (req,res) => {
-  const userId = req.body.userId;
+app.patch("/user/:userId", async (req, res) => {
+  const userId = req.params?.userId;
   const data = req.body;
-  try{
-    const updatedUser = await User.findByIdAndUpdate({_id: userId}, data, {returnDocument : 'after', runValidators : true});
-    res.send(updatedUser)
+  try {
+    const Allowed_Updates = [
+      "about",
+      "photoURL",
+      "skills",
+      "age",
+      "lastName",
+      "gender"
+    ];
+    const isUpdatesAllowed = Object.keys(data).every((k) =>
+      Allowed_Updates.includes(k)
+    );
+    if (!isUpdatesAllowed) {
+      throw new Error("Updates not allowed");
+    }
+    if (data?.skills && data?.skills.length > 10) {
+      throw new Error("You can only enter 10 skills max");
+    }
+    const updatedUser = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+    res.send(updatedUser);
+  } catch (err) {
+    res.status(404).send("There was an Error:" + err.message);
   }
-  catch(err){
-    res.status(404).send("There was an Error:" + err.message)
-  }
-})
+});
 
 connectDB()
   .then(() => {
