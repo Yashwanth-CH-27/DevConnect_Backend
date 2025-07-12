@@ -1,15 +1,29 @@
 const express = require("express");
 const connectDB = require("./config/database");
-const app = express();
 const User = require("./models/user");
+const brcypt = require("bcrypt");
 
+const app = express();
 app.use(express.json());
 
 // saving data to DB by using .save()
 
 app.post("/signUp", async (req, res) => {
-  const user = new User(req.body);
+
   try {
+    const {firstName, lastName, emailId, password, age, gender, about, photoURL, skills} = req.body
+    const hashedPassword = await brcypt.hash(password, 10)
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+      age,
+      gender,
+      photoURL,
+      skills,
+      about
+    });
     await user.save();
     res.send("New User Data added Successfully!!");
   } catch (err) {
@@ -17,6 +31,28 @@ app.post("/signUp", async (req, res) => {
   }
 });
 
+//Login
+
+app.post("/login", async (req,res) => {
+  try{
+    const {emailId, password} = req.body;
+    const user = await User.findOne({emailId: emailId});
+    if(!user){
+      throw new Error("Invalid credentials")
+    }
+    const decryptedPassword = await brcypt.compare(password,user.password)
+    if(!decryptedPassword){
+      throw new Error("Invalid credentials")
+    }
+    else{
+      res.send("Login Successfull")
+    }
+  }
+  catch(err){
+    res.status(404).send("Something went wrong!"+ err.message)
+  } 
+})
+ 
 //when you want to find one doc by using emailId use .find, but from duplicates use .findOne
 
 app.get("/user", async (req, res) => {
@@ -72,8 +108,7 @@ app.patch("/user/:userId", async (req, res) => {
       "photoURL",
       "skills",
       "age",
-      "lastName",
-      "gender"
+      "gender",
     ];
     const isUpdatesAllowed = Object.keys(data).every((k) =>
       Allowed_Updates.includes(k)
