@@ -4,6 +4,7 @@ const User = require("./models/user");
 const brcypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const userAuth = require("./middleware/userAuth")
 
 const app = express();
 app.use(express.json());
@@ -49,7 +50,6 @@ app.post("/login", async (req,res) => {
     }
     else{
       const token = await jwt.sign({_id: user._id}, "Pass@Dev279729")
-      console.log(token);
       res.cookie("token", token)
       res.send("Login Successfull")
     }
@@ -61,26 +61,14 @@ app.post("/login", async (req,res) => {
 
 //to acess user profile
 
-app.get("/profile", async (req,res) => {
+app.get("/profile", userAuth, async (req,res) => {
  try{
-    const cookies = req.cookies;
-    const {token} = cookies;
-    if(!token){
-      throw new Error("Invalid Token")
-    }
-    const decodedMessage = await jwt.verify(token, "Pass@Dev279729");
-    const {_id} = decodedMessage;
-    const user = await User.findById(_id)
-    console.log(user)
-    if(!user){
-      throw new Error("User Not Valid!!")
-    }
+    const user = req.user;
     res.send("User Found and details are: "+user);
  }
   catch(err){
   res.status(404).send("Something went wrong!"+ err.message)
-} 
-  
+}  
 })
  
 //when you want to find one doc by using emailId use .find, but from duplicates use .findOne
