@@ -2,7 +2,7 @@ const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const brcypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const userAuth = require("./middleware/userAuth")
 
@@ -44,12 +44,12 @@ app.post("/login", async (req,res) => {
     if(!user){
       throw new Error("Invalid credentials")
     }
-    const decryptedPassword = await brcypt.compare(password,user.password)
+    const decryptedPassword = await user.decodePassword(password)
     if(!decryptedPassword){
       throw new Error("Invalid credentials")
     }
     else{
-      const token = await jwt.sign({_id: user._id}, "Pass@Dev279729")
+      const token = await user.getJWT();
       res.cookie("token", token)
       res.send("Login Successfull")
     }
