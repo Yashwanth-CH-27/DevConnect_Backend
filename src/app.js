@@ -2,9 +2,12 @@ const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const brcypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser())
 
 // saving data to DB by using .save()
 
@@ -45,12 +48,39 @@ app.post("/login", async (req,res) => {
       throw new Error("Invalid credentials")
     }
     else{
+      const token = await jwt.sign({_id: user._id}, "Pass@Dev279729")
+      console.log(token);
+      res.cookie("token", token)
       res.send("Login Successfull")
     }
   }
   catch(err){
     res.status(404).send("Something went wrong!"+ err.message)
   } 
+})
+
+//to acess user profile
+
+app.get("/profile", async (req,res) => {
+ try{
+    const cookies = req.cookies;
+    const {token} = cookies;
+    if(!token){
+      throw new Error("Invalid Token")
+    }
+    const decodedMessage = await jwt.verify(token, "Pass@Dev279729");
+    const {_id} = decodedMessage;
+    const user = await User.findById(_id)
+    console.log(user)
+    if(!user){
+      throw new Error("User Not Valid!!")
+    }
+    res.send("User Found and details are: "+user);
+ }
+  catch(err){
+  res.status(404).send("Something went wrong!"+ err.message)
+} 
+  
 })
  
 //when you want to find one doc by using emailId use .find, but from duplicates use .findOne
