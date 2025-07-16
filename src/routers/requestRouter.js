@@ -42,6 +42,31 @@ requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req,res) 
     }
 })
 
+//accepting or rejecting the request API
+requestRouter.post("/request/review/:status/:requestId", userAuth, async(req,res) => {
+    try{
+        const {status, requestId} = req.params;
+        const loggedInUser = req.user;
+        const allowedStatus = ["accepted", "rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(404).send("Invalid Status!")
+        }
+        const isReqValid = await connectionReqModel.findOne({
+            _id: requestId,
+            toUserId: loggedInUser._id,
+            status: "intrested",
+        })
+        if(!isReqValid){
+            return res.status(404).send("Invalid Request!")
+        }
+        isReqValid.status = status;
+        const data = await isReqValid.save();
+        res.json({message: "successfully reviewed!"})
+    }
+    catch(err){
+        res.send("Error: "+err.message)
+    }
+})
 
 module.exports = requestRouter;
 
