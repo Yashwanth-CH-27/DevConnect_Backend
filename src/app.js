@@ -5,18 +5,18 @@ const authRouters = require("./routers/authRouters");
 const profileRouter = require("./routers/profileRouter");
 const requestRouter = require("./routers/requestRouter");
 const userRouter = require("./routers/userRouter");
-
+const cors = require("cors");
 
 const app = express();
+
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/",authRouters);
-app.use("/",profileRouter);
-app.use("/",requestRouter);
-app.use("/",userRouter);
-
-
+app.use("/", authRouters);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
 
 connectDB()
   .then(() => {
@@ -26,5 +26,5 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.log("DB is not connected!!"+err.message);
+    console.log("DB is not connected!!" + err.message);
   });

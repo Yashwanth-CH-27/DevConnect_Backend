@@ -53,10 +53,10 @@ authRouters.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
-      res.send("Login Successfull");
+      res.send(user);
     }
   } catch (err) {
-    res.status(404).send("Something went wrong!" + err.message);
+    res.status(401).send(err.message);
   }
 });
 

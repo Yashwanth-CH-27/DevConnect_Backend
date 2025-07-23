@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
-const brcypt = require("bcrypt")
+const bcrypt = require("bcrypt")
 
 const userSchema = mongoose.Schema({
     firstName:{
@@ -10,11 +10,10 @@ const userSchema = mongoose.Schema({
         required: true,
         minLength: 3,
         maxLength: 50,
-        trim: true,
-        lowercase: true
+        trim: true
     },
     lastName:{
-        type: String,
+        type: String
     },
     emailId:{
         type: String,
@@ -48,9 +47,9 @@ const userSchema = mongoose.Schema({
     },
     gender:{
         type: String,
-        lowercase: true,
+        
         validate(value){
-            if(!["male", "female", "others"].includes(value)){
+            if(!["Male", "Female", "Others"].includes(value)){
                 throw new Error("You should enter a valid gender that is either male,female or others")
             }
         }
@@ -74,13 +73,13 @@ const userSchema = mongoose.Schema({
 
 userSchema.methods.getJWT = async function (){
     const user = this;
-    const token = await jwt.sign({_id: user}, "Pass@Dev279729", {expiresIn : '1d'})
+    const token = await jwt.sign({_id: user._id}, "Pass@Dev279729", {expiresIn : '1d'})
     return token;
 }
 
 userSchema.methods.decodePassword = async function (password) {
     const user = this;
-    const decryptedPassword = await brcypt.compare(password,user.password)
+    const decryptedPassword = await bcrypt.compare(password,user.password)
     return decryptedPassword;
 }
 
