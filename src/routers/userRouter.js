@@ -14,7 +14,7 @@ userRouter.get("/user/request/received", userAuth, async(req,res) => {
             status: "intrested",
         }).populate("fromUserId", USER_SAFE_DATA);
 
-        res.json({message: "These are the connection requests you got!", dataFromDB})
+        res.send(dataFromDB)
     }
     catch(err){
         res.send("Error: ", err.message)
@@ -50,7 +50,7 @@ userRouter.get("/feed", userAuth, async(req,res) => {
     try{
         const loggedInUser = req.user;
         const page = parseInt(req.query.page) || 1;
-        let limit = parseInt(req.query.limit) || 10;
+        let limit = parseInt(req.query.limit) || 100;
         limit = limit > 50 ? 50 : limit;
         const skip = (page-1) * limit;
         const allConnectionReqEntries = await connectionReqModel.find({
