@@ -3,7 +3,6 @@ const authRouters = express.Router();
 const User = require("../models/user");
 const brcypt = require("bcrypt");
 
-
 // saving data to DB by using .save()
 authRouters.post("/signUp", async (req, res) => {
   try {
@@ -33,8 +32,11 @@ authRouters.post("/signUp", async (req, res) => {
     const savedData = await user.save();
     const token = await savedData.getJWT();
     res.cookie("token", token, {
-        expires: new Date(Date.now() + 8 * 3600000),
-      });
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      expires: new Date(Date.now() + 8 * 3600000),
+    });
     res.send(savedData);
   } catch (err) {
     res.status(404).send("There was an Error:" + err.message);
@@ -55,8 +57,12 @@ authRouters.post("/login", async (req, res) => {
     } else {
       const token = await user.getJWT();
       res.cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
         expires: new Date(Date.now() + 8 * 3600000),
       });
+
       res.send(user);
     }
   } catch (err) {
@@ -65,11 +71,18 @@ authRouters.post("/login", async (req, res) => {
 });
 
 //logout API
-authRouters.post("/logout", async (req,res) => {
-    try{
-        res.cookie("token", null, {expires: new Date(Date.now())}).send("Logout Successfull")
-    }catch (err) {
-        res.status(404).send("Error" + err.message);
+authRouters.post("/logout", async (req, res) => {
+  try {
+    res
+      .cookie("token", null, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        expires: new Date(Date.now()),
+      })
+      .send("Logout Successful");
+  } catch (err) {
+    res.status(404).send("Error" + err.message);
   }
 });
 
