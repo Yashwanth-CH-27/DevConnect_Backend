@@ -6,6 +6,7 @@ const profileRouter = require("./routers/profileRouter");
 const requestRouter = require("./routers/requestRouter");
 const userRouter = require("./routers/userRouter");
 const cors = require("cors");
+const PORT = process.env.PORT || 5000;
 
 require("dotenv").config(); // Load .env
 
@@ -23,8 +24,8 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("DB connected Successfully");
-    app.listen(process.env.PORT, () => {
-      console.log(`Successfully listening on port number ${process.env.PORT}...`);
+    app.listen(PORT, () => {
+      console.log(`Successfully listening on port number ${PORT}...`);
     });
   })
   .catch((err) => {
