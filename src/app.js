@@ -7,9 +7,11 @@ const requestRouter = require("./routers/requestRouter");
 const userRouter = require("./routers/userRouter");
 const cors = require("cors");
 
+require("dotenv").config(); // Load .env
+
 const app = express();
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -21,10 +23,10 @@ app.use("/", userRouter);
 connectDB()
   .then(() => {
     console.log("DB connected Successfully");
-    app.listen(7777, () => {
-      console.log("Successfully listening on port number 7777...");
+    app.listen(process.env.PORT, () => {
+      console.log(`Successfully listening on port number ${process.env.PORT}...`);
     });
   })
   .catch((err) => {
-    console.log("DB is not connected!!" + err.message);
+    console.log("DB is not connected!! " + err.message);
   });
